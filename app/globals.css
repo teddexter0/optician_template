@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Seasonal CSS variables ── */
+:root,
+[data-season="default"] {
+  --color-primary:  #1B3A5C;
+  --color-accent:   #4ECDC4;
+  --color-bg:       #F8FBFF;
+  --color-text:     #1A1A1A;
+  --hero-bg:        linear-gradient(135deg, #1B3A5C 0%, #2a5a8c 60%, #4ECDC4 100%);
+  --banner-bg:      #1B3A5C;
+  --banner-text:    #ffffff;
+}
+
+[data-season="valentine"] {
+  --color-primary:  #8B1A4A;
+  --color-accent:   #F4A7BB;
+  --hero-bg:        linear-gradient(135deg, #8B1A4A 0%, #c2185b 60%, #F4A7BB 100%);
+  --banner-bg:      #8B1A4A;
+  --banner-text:    #fff0f5;
+}
+
+[data-season="christmas"] {
+  --color-primary:  #1A5C2A;
+  --color-accent:   #D4351C;
+  --hero-bg:        linear-gradient(135deg, #1A5C2A 0%, #2e7d32 60%, #D4351C 100%);
+  --banner-bg:      #1A5C2A;
+  --banner-text:    #f1f8e9;
+}
+
+[data-season="easter"] {
+  --color-primary:  #5B3E8F;
+  --color-accent:   #F9C74F;
+  --hero-bg:        linear-gradient(135deg, #5B3E8F 0%, #7b52c4 60%, #F9C74F 100%);
+  --banner-bg:      #5B3E8F;
+  --banner-text:    #fff8e1;
+}
+
+/* ── Global base ── */
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* ── Seasonal banner ── */
+.seasonal-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  background: var(--banner-bg);
+  color: var(--banner-text);
+  text-align: center;
+}
+
+/* ── WhatsApp float ── */
+.whatsapp-float {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #25D366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.45);
+  animation: whatsapp-pulse 3s ease-in-out infinite;
+  transition: transform 0.2s;
+}
+
+.whatsapp-float:hover {
+  transform: scale(1.1);
+}
+
+@keyframes whatsapp-pulse {
+  0%, 100% { box-shadow: 0 4px 16px rgba(37, 211, 102, 0.45); }
+  50%       { box-shadow: 0 4px 32px rgba(37, 211, 102, 0.75); }
+}
+
+/* ── Utility classes ── */
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-semibold text-white transition-all duration-200;
+  background-color: var(--color-primary);
+}
+.btn-primary:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-semibold border-2 transition-all duration-200;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+.btn-outline:hover {
+  background-color: var(--color-primary);
+  @apply text-white;
+}
+
+.card {
+  @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-6;
+}
+
+.section-pad {
+  @apply py-16 md:py-24 px-4 md:px-8 max-w-6xl mx-auto;
+}
+
+.input-field {
+  @apply w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 transition-all duration-200 bg-white;
+  --tw-ring-color: var(--color-accent);
+}
