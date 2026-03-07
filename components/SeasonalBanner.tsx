@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { opticianConfig } from '@/config/optician'
 import { detectSeason } from '@/lib/season'
 
@@ -12,11 +12,27 @@ const MESSAGES = {
 
 export default function SeasonalBanner() {
   const [dismissed, setDismissed] = useState(false)
+  const bannerRef = useRef<HTMLDivElement>(null)
   const season = opticianConfig.season !== 'default' ? opticianConfig.season : detectSeason()
   const message = MESSAGES[season]
+
+  useEffect(() => {
+    if (!bannerRef.current || !message) return
+    const init = async () => {
+      const { gsap } = await import('gsap')
+      gsap.fromTo(
+        bannerRef.current,
+        { y: -40, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6, ease: 'back.out(1.4)', delay: 0.1 }
+      )
+    }
+    init()
+  }, [message])
+
   if (!message || dismissed) return null
+
   return (
-    <div className="seasonal-banner" role="banner">
+    <div ref={bannerRef} className="seasonal-banner" role="banner">
       <span className="text-sm font-medium">{message}</span>
       <button
         onClick={() => setDismissed(true)}
