@@ -1,10 +1,136 @@
 'use client'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
+import { useEffect, useRef } from 'react'
 import { opticianConfig } from '@/config/optician'
+import HeroGSAP from '@/components/HeroGSAP'
 
 export default function HomePage() {
   const featured = opticianConfig.frames.filter(f => f.featured && f.inStock)
+
+  const statsRef = useRef<HTMLDivElement>(null)
+  const servicesRef = useRef<HTMLDivElement>(null)
+  const framesRef = useRef<HTMLDivElement>(null)
+  const ctaSectionRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const initScrollAnimations = async () => {
+      if (typeof window === 'undefined') return
+      const { gsap } = await import('gsap')
+      const { ScrollTrigger } = await import('gsap/ScrollTrigger')
+      gsap.registerPlugin(ScrollTrigger)
+
+      // Animate stat numbers counting up
+      if (statsRef.current) {
+        const statEls = statsRef.current.querySelectorAll('.stat-number')
+        gsap.fromTo(
+          statsRef.current.querySelectorAll('.stat-item'),
+          { opacity: 0, y: 30 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            stagger: 0.12,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: statsRef.current,
+              start: 'top 80%',
+              once: true,
+            },
+          }
+        )
+        // Counter animation for stat numbers
+        statEls.forEach(el => {
+          const raw = el.getAttribute('data-value') || '0'
+          const isPlus = raw.includes('+')
+          const isDuration = raw.includes('Day')
+          if (isDuration) return
+          const num = parseInt(raw.replace(/[^0-9]/g, ''), 10)
+          const obj = { val: 0 }
+          gsap.to(obj, {
+            val: num,
+            duration: 1.8,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: statsRef.current,
+              start: 'top 80%',
+              once: true,
+            },
+            onUpdate() {
+              el.textContent = Math.round(obj.val).toLocaleString() + (isPlus ? '+' : '')
+            },
+          })
+        })
+      }
+
+      // Service cards stagger in
+      if (servicesRef.current) {
+        gsap.fromTo(
+          servicesRef.current.querySelectorAll('.service-card'),
+          { opacity: 0, y: 40 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.55,
+            stagger: 0.1,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: servicesRef.current,
+              start: 'top 80%',
+              once: true,
+            },
+          }
+        )
+      }
+
+      // Frame cards scale in
+      if (framesRef.current) {
+        gsap.fromTo(
+          framesRef.current.querySelectorAll('.frame-card'),
+          { opacity: 0, scale: 0.92 },
+          {
+            opacity: 1,
+            scale: 1,
+            duration: 0.5,
+            stagger: 0.1,
+            ease: 'back.out(1.4)',
+            scrollTrigger: {
+              trigger: framesRef.current,
+              start: 'top 80%',
+              once: true,
+            },
+          }
+        )
+      }
+
+      // CTA section fade up
+      if (ctaSectionRef.current) {
+        gsap.fromTo(
+          ctaSectionRef.current,
+          { opacity: 0, y: 30 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.7,
+            ease: 'power2.out',
+            scrollTrigger: {
+              trigger: ctaSectionRef.current,
+              start: 'top 85%',
+              once: true,
+            },
+          }
+        )
+      }
+    }
+
+    initScrollAnimations()
+  }, [])
+
+  const STATS = [
+    { stat: '10+', label: 'Years in Practice', dataValue: '10+' },
+    { stat: '4,000+', label: 'Happy Patients', dataValue: '4000+' },
+    { stat: '200+', label: 'Frame Styles', dataValue: '200+' },
+    { stat: '1 Day', label: 'Lens Turnaround', dataValue: '1 Day' },
+  ]
 
   return (
     <>
@@ -25,45 +151,40 @@ export default function HomePage() {
       </nav>
 
       <main className="pt-16">
-        {/* HERO */}
-        <section className="relative min-h-[92vh] flex items-center overflow-hidden" style={{ background: 'var(--hero-bg)' }}>
-          <div className="section-pad relative z-10 text-white">
-            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-              <p className="text-[var(--color-accent)] font-semibold text-sm uppercase tracking-widest mb-4">
-                {opticianConfig.address}
-              </p>
-              <h1 className="font-display text-5xl md:text-7xl leading-tight mb-6">
-                {opticianConfig.tagline}
-              </h1>
-              <p className="text-lg text-white/80 max-w-xl mb-10">
-                Expert eye care, designer frames, and a team that remembers your name — not just your prescription.
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Link href="/book" className="btn-primary" style={{ background: 'var(--color-accent)', color: '#0a2a2a' }}>
-                  Book Eye Test
-                </Link>
-                <Link href="/frames" className="btn-outline border-white text-white hover:bg-white hover:text-gray-900">
-                  Browse Frames
-                </Link>
-              </div>
-            </motion.div>
+        {/* HERO — GSAP animated */}
+        <HeroGSAP
+          headline={opticianConfig.tagline}
+          subHeadline="Expert eye care, designer frames, and a team that remembers your name — not just your prescription."
+          particleColor="#4ECDC4"
+        >
+          <p className="text-[var(--color-accent)] font-semibold text-sm uppercase tracking-widest mb-4">
+            {opticianConfig.address}
+          </p>
+          <div className="flex flex-wrap gap-4">
+            <Link href="/book" className="btn-primary" style={{ background: 'var(--color-accent)', color: '#0a2a2a' }}>
+              Book Eye Test
+            </Link>
+            <Link href="/frames" className="btn-outline border-white text-white hover:bg-white hover:text-gray-900">
+              Browse Frames
+            </Link>
           </div>
-          {/* Decorative circles */}
-          <div className="absolute -right-32 -top-32 w-[520px] h-[520px] rounded-full opacity-10 border-[60px] border-white" />
-          <div className="absolute -right-10 bottom-10 w-[300px] h-[300px] rounded-full opacity-10 border-[40px] border-white" />
-        </section>
+        </HeroGSAP>
 
         {/* TRUST STRIP */}
         <section className="bg-white border-b border-gray-100">
-          <div className="max-w-6xl mx-auto px-4 md:px-8 py-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            {[
-              { stat: '10+', label: 'Years in Practice' },
-              { stat: '4,000+', label: 'Happy Patients' },
-              { stat: '200+', label: 'Frame Styles' },
-              { stat: '1 Day', label: 'Lens Turnaround' },
-            ].map(({ stat, label }) => (
-              <div key={label}>
-                <p className="text-3xl font-bold font-display" style={{ color: 'var(--color-primary)' }}>{stat}</p>
+          <div
+            ref={statsRef}
+            className="max-w-6xl mx-auto px-4 md:px-8 py-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center"
+          >
+            {STATS.map(({ stat, label, dataValue }) => (
+              <div key={label} className="stat-item">
+                <p
+                  className="stat-number text-3xl font-bold font-display"
+                  data-value={dataValue}
+                  style={{ color: 'var(--color-primary)' }}
+                >
+                  {stat}
+                </p>
                 <p className="text-sm text-gray-500 mt-1">{label}</p>
               </div>
             ))}
@@ -74,17 +195,14 @@ export default function HomePage() {
         <section className="section-pad">
           <h2 className="font-display text-4xl mb-2" style={{ color: 'var(--color-primary)' }}>Our Services</h2>
           <p className="text-gray-500 mb-10">Everything your eyes need, under one roof.</p>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {opticianConfig.services.map((svc, i) => (
-              <motion.div key={svc.name}
-                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.07 }}
-                className="card hover:shadow-md transition-shadow">
+          <div ref={servicesRef} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {opticianConfig.services.map((svc) => (
+              <div key={svc.name} className="service-card card hover:shadow-md transition-shadow">
                 <span className="text-3xl">{svc.icon}</span>
                 <h3 className="font-semibold text-gray-900 mt-3 mb-1">{svc.name}</h3>
                 <p className="text-gray-500 text-sm mb-3">{svc.description}</p>
                 <p className="text-sm font-bold" style={{ color: 'var(--color-accent)' }}>{svc.price}</p>
-              </motion.div>
+              </div>
             ))}
           </div>
           <div className="mt-10 text-center">
@@ -96,12 +214,9 @@ export default function HomePage() {
         <section className="section-pad bg-gray-50 rounded-3xl mx-4 md:mx-8">
           <h2 className="font-display text-4xl mb-2" style={{ color: 'var(--color-primary)' }}>Featured Frames</h2>
           <p className="text-gray-500 mb-10">Hand-picked styles for every face and budget.</p>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featured.map((frame, i) => (
-              <motion.div key={frame.id}
-                initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.08 }}
-                className="card group cursor-pointer">
+          <div ref={framesRef} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featured.map((frame) => (
+              <div key={frame.id} className="frame-card card group cursor-pointer hover:shadow-md transition-shadow">
                 <div className="bg-gray-100 rounded-xl h-40 flex items-center justify-center mb-4 group-hover:bg-gray-200 transition-colors text-5xl">
                   🕶️
                 </div>
@@ -111,7 +226,7 @@ export default function HomePage() {
                   KES {frame.price.toLocaleString()}
                 </p>
                 <p className="text-xs text-gray-400 mt-1">{frame.colors.join(' / ')}</p>
-              </motion.div>
+              </div>
             ))}
           </div>
           <div className="mt-10 text-center">
@@ -121,7 +236,7 @@ export default function HomePage() {
 
         {/* CTA */}
         <section className="section-pad text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+          <div ref={ctaSectionRef}>
             <h2 className="font-display text-4xl mb-4" style={{ color: 'var(--color-primary)' }}>
               When did you last have your eyes tested?
             </h2>
@@ -129,7 +244,7 @@ export default function HomePage() {
               Experts recommend an eye test every two years. Book yours today — it takes just 30 minutes.
             </p>
             <Link href="/book" className="btn-primary text-lg px-10 py-4">Book My Eye Test</Link>
-          </motion.div>
+          </div>
         </section>
 
         {/* FOOTER */}
